@@ -1,0 +1,22 @@
+block content
+  div.model#directoryDialog(style="display:none")
+    div.modal-blocker
+    div(style="position:absolute; padding:120px; top:0px; bottom:0px; left:0px; right:0px;")
+      div.modal-content(style="margin-top:120px; width:540px;")
+        div.modal-header(style="background-color:black")
+          span.close(id="directoryClose") &times;
+          h2 Select Directory
+        div.modal-body(style="background: rgba(255, 255, 255, 0.5); height:160px;")
+          div(style="width: 50%; display:inline-block; padding:20px;")
+            label.modal-label#connect-label(for="title" style="margin-left:-20px; margin-top:10px;") Select a <b><i>Directory</i></b> 
+            p.
+            div(style="display:flex; flex-direction:row;width:360px;")
+              input.modal-entry#directory(style="width:320px;" name="phrase" placeholder="directory...")
+              button#openDirectoryDialog(style="height:24px;") ...  
+            div#connect-error(style="position:absolute; left:20px; bottom:50px;")
+            p#connection-message(style="color:red; font-size: 12px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;") &nbsp;
+          div(style="position:absolute; bottom:0px; padding:10px;")
+              button.modal-btn(id="selectDirectory") Select  
+              button.modal-cancel-btn(id="cancelDirectorySelection") Cancel
+          div.imageFrame(style="display:none; position:absolute; margin-left:20px; margin-right:10px; width:60px; height:60px; top:60px; right:0px; padding:20px; black; opacity:0.7; border: 3px solid white")
+            img(src="assets/images/gallery.svg" style="width:100%; height:100%;" alt="Password Image")

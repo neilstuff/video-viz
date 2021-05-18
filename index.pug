@@ -1,0 +1,80 @@
+extends layout
+
+block content
+  script(type="text/template" data-template="menu-template").
+    block content
+    each folder, index in folders
+      - var click = '$(this).Select("' + escape(folder) + '","' + index + '")'
+      - var menuID = 'menu-' + index
+      - var hrefID = '#hrefID-' + index
+      a(id=`${menuID}` href=`${hrefID}`, onclick=`${click}`)= folder
+
+  script(type="text/template" data-template="tab-template").
+    block content
+      each folder, index in folders
+        - var click = 'return $(this).Tab("' + escape(folder) + '","' + index + '")'
+        - var tabID = 'tab-' + index
+        - var tabButtonID = 'tab-button-' + index
+        li  
+          if index == selectedTab
+            div(id=`${tabButtonID}` class="tab-item" style="background: rgba(255, 255, 255, 0.4) ; text-decoration: underline;", onclick=`${click}`)
+              a(id=`${tabID}` class="tab-item-button" href=`${tabID}`)= folder
+          if index != selectedTab
+            div(id=`${tabButtonID}` class="tab-item", style="text-decoration: none;", onclick=`${click}`)
+              a(id=`${tabID}` class="tab-item-button" href=`${tabID}`)= folder 
+
+  div.main(style="position: absolute; top:0px; bottom:0px; left:0px; right:0px; background-color: black; overflow: hidden;")
+    div#toolbar
+      div.layout    
+        div#scroll-left(style="position: absolute; left:10px; display:none;" class="scroller")
+          img(src='assets/images/arrow-left.svg' style='margin-top:5px; width:16px; height:16px') 
+        div#scroll-right(style="position: absolute; right:90px; display:none;" class="scroller")
+          img(src='assets/images/arrow-right.svg' style='margin-top:5px; width:16px; height:16px') 
+
+        div.container
+          div.wrapper
+            ul#tab(class="nav nav-tabs list")
+          
+        div(style="position: absolute; right:5px; top:-15px; padding-left:5px;")
+          button.button#addDirectory
+            img(src="assets/images/plus.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Add Directory")
+          button.button#menu
+            img(src="assets/images/menu.svg" style="padding-top:8px; width:12px; height:12px; top:10px; text-align:center; margin-left:1px;" alt="Menu")
+      div#dropdown.dropdown-content
+
+  div(style="position: absolute; overflow: none; top:8px; bottom: 20px; left: 10px; right: 10px; margin-top:50px; background-color:rgba(255, 255, 255, 0.08); padding-top:10px; overflow: hidden;")
+    div#display(style='overflow:none; position:absolute; left:0px; right:0px; bottom: 220px; top: 0px; border:2px solid white; background: url("assets/images/video-player.png") no-repeat center center;')
+       div#videoContainer(style='position:absolute; top:10px; bottom:10px; left:10px; right:10px; text-align:center;')
+        video#vid1(class="video-js vjs-default-skin vjs-big-play-centered" style='position:absolute; width:100%; height:100%; margin-left: auto; margin-right: auto;')
+    div(style="position:absolute; bottom:0px;")
+      div(style="left:10px; width:100px;")
+        div#droparea(style="left:10px; width:200px; height:200px")
+          div#dropareainner
+            p
+            p
+            picture
+            img(src='assets/images/download.svg' style='margin-top:20px; width:64px; height:64px') 
+            p
+            p.dropfiletext Drop Video File here
+            p.dropfiletext or
+            p
+              input.uploadbtn#uploadbtn(type='button' value="Select File")  
+          input#upload(type='file' accept='video/*')
+    div#navigator(style='position:absolute; left:220px; bottom:0px; height:190px; right:0px; border:2px solid white; padding:5px; background-color:rgba(255, 255, 255, 0.3);')
+      div.swiper-container#swiper-container(style='right:0px; padding-bottom:40px;')
+        div.swiper-wrapper#swiper-wrapper(style='height:160px; width:160px;')
+        div.swiper-pagination(style="margin-top:0px;")
+  div#waitDialog(class="modal-blocker" style="display:none; z-index:100; position:fixed; width:100%; height:100%; padding:0px;")
+    div#uploadIndicator(style="position: relative; top:35%; height:90px; width:90px; margin:auto; z-index: 1000;")
+      div#uploadProgress(class="c100 p0 big grey")
+        span#percentage 0%
+        div.slice
+          div.bar
+            div.fill      
+    div#messageStatus(style="position: relative; color:white; z-index: 1000; top: 50%; text-align: center;")
+      label#messageLabel Processing 
+
+  include assets/views/connect.pug
+  
+  script(src='node_modules/video.js/dist/video.min.js')
+  script(src="assets/javascripts/responder.js")
