@@ -5,65 +5,70 @@ let cardTemplate = ejs.compile($('script[data-template="card-template"]').text()
 var videoPlayer = null;
 var images = {};
 var blob = null;
+var filename = null;
 
 var cancelArchiveCallback = () => {
 
-	window.api.quit();
+    window.api.quit();
 
 }
 
-String.prototype.initCap = function () {
-	return this.toLowerCase().replace(/(?:^|\b)[a-z]/g, function (m) {
-		return m.toUpperCase();
-	});
+String.prototype.initCap = function() {
+    return this.toLowerCase().replace(/(?:^|\b)[a-z]/g, function(m) {
+        return m.toUpperCase();
+    });
 };
 
-var getLeftPos = function () {
-	return $('.list').position().left;
+var getLeftPos = function() {
+    return $('.list').position().left;
 };
 
 function processFiles(files) {
-	Array.prototype.slice.call(files).forEach(function (file) {
-		var fileURL = URL.createObjectURL(file);
-		var reader = new FileReader();
+    Array.prototype.slice.call(files).forEach(function(file) {
+        var fileURL = URL.createObjectURL(file);
+        var reader = new FileReader();
 
-		if (videoPlayer) {
-			videoPlayer.pause();
-		}
+        filename = file.name;
 
-		$('#display').css('background', '');
-		$('#messageLabel').html("Loading...")
-		$('#waitDialog').css('display', 'inline-block');
-		$('#videoContainer').css('display', 'none');
+        $('#filename').html(filename);
 
-		reader.onload = function () {
-			var data = reader.result;
+        if (videoPlayer) {
+            videoPlayer.pause();
+        }
 
-			$('#swiper-container').css('display', 'block');
-			$('#waitDialog').css('display', 'none');
-					
-			blob = new Blob([data], {type : 'video/mp4'});
-			var url = URL.createObjectURL(blob);
+        $('#display').css('background', '');
+        $('#messageLabel').html("Loading...")
+        $('#waitDialog').css('display', 'inline-block');
+        $('#videoContainer').css('display', 'none');
 
-			showVideoPlayer(url);
+        reader.onload = function() {
+            var data = reader.result;
 
-		};
+            $('#swiper-container').css('display', 'block');
+            $('#waitDialog').css('display', 'none');
 
-		reader.onprogress = function (data) {
+            blob = new Blob([data], { type: 'video/mp4' });
+            var url = URL.createObjectURL(blob);
 
-			if (data.lengthComputable) {
-				var progress = parseInt(((data.loaded / data.total) * 100), 10);
-				document.getElementById("uploadProgress").className = "c100 p" +
-					progress +
-					" big blue";
-				$('#percentage').html(progress + "%");
+            showVideoPlayer(url);
 
-			}
-		}
+        };
 
-		reader.readAsArrayBuffer(file);
+        reader.onprogress = function(data) {
 
-	});
+            if (data.lengthComputable) {
+                var progress = parseInt(((data.loaded / data.total) * 100), 10);
+                document.getElementById("uploadProgress").className = "c100 p" +
+                    progress +
+                    " big blue";
+                $('#percentage').html(progress + "%");
+
+            }
+        }
+
+        reader.readAsArrayBuffer(file);
+
+    });
 
 }
 
@@ -74,20 +79,20 @@ function processFiles(files) {
  * @param {string} folder the folder containing the files
  */
 function buildSwiperList(directory, folder) {
-	var folderPath = path.join(directory, folder)
-	const files  = fileFilter(folderPath);
+    var folderPath = path.join(directory, folder)
+    const files = fileFilter(folderPath);
 
-	$('#view').css('display', 'none');
-	$('#swiper-wrapper').html("");
-	$('#swiper-container').css('display', 'block');
+    $('#view').css('display', 'none');
+    $('#swiper-wrapper').html("");
+    $('#swiper-container').css('display', 'block');
 
-	for (var file in files) {
+    for (var file in files) {
 
-		createSwiperEntry(folderPath, files[file], file, files.length);
+        createSwiperEntry(folderPath, files[file], file, files.length);
 
-	}
+    }
 
-	$('#swiper-container').css('display', 'block');
+    $('#swiper-container').css('display', 'block');
 
 }
 
@@ -99,111 +104,157 @@ function buildSwiperList(directory, folder) {
  */
 function showVideoPlayer(fileUrl) {
 
-	$('#videoContainer').css('display', 'inline-block');
+    $('#videoContainer').css('display', 'inline-block');
 
-	var options = {
+    var options = {
         controls: true,
         controlBar: {
             pictureInPictureToggle: false
         },
         autoplay: false,
-        preload: 'auto'};
-    
+        preload: 'auto'
+    };
+
     if (videoPlayer != null) {
         videoPlayer.dispose();
-		$('#videoContainer').html("<video id='vid1' " + 
-		  "class='video-js vjs-default-skin vjs-big-play-centered' " + 
-		  "style='position:absolute; width:100%; height:100%; margin-left: auto; margin-right: auto;'>" + 
-		  "</video>");
+        $('#videoContainer').html("<video id='vid1' " +
+            "class='video-js vjs-default-skin vjs-big-play-centered' " +
+            "style='position:absolute; width:100%; height:100%; margin-left: auto; margin-right: auto;'>" +
+            "</video>");
     }
 
     videoPlayer = videojs('vid1', options, function onPlayerReady() {
-            this.on('ended', function() {
-        });
-	});
-	
-	videoPlayer.on('loadedmetadata', function() {
-	});
- 
-    videoPlayer.src(
-            {type: 'video/mp4',
-			 src: fileUrl});
- 
+        this.on('ended', function() {});
+    });
+
+    videoPlayer.on('loadedmetadata', function() {});
+
+    videoPlayer.src({
+        type: 'video/mp4',
+        src: fileUrl
+    });
+
 }
 
 $.fn.Setup = (currentTime) => {
-	images = {};
+    images = {};
 
-	$('#image-container').html("");
-	
-	$('#photobtn').attr('disabled', false);
-	
-} 
+    $('#image-container').html("");
+    $('#filename').html("");
+
+    $('#photobtn').attr('disabled', false);
+
+}
 
 $.fn.Play = (currentTime) => {
-	var duration = videoPlayer.duration();
+    var duration = videoPlayer.duration();
 
-	videoPlayer.currentTime(parseInt(currentTime));
-} 
+    videoPlayer.currentTime(parseInt(currentTime));
+}
+
+$.fn.Save = (filename, images, blob) => {
+    let zipFile = new JSZip();
+    let folder = zipFile.folder('');
+
+    folder.file(filename, blob, {
+        comment: "Generated by Video Viz"
+    });
+
+    zipFile.generateAsync({ type: "blob" })
+        .then(function(blob) {
+            var click = function(node) {
+                var event = new MouseEvent("click");
+                node.dispatchEvent(event);
+            }
+
+            document.body.onfocus = function() {
+                document.getElementById("waitDialog").style.display = "none";
+                document.body.onfocus = null;
+            }
+
+            var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a");
+            var canUseSaveLink = "download" in saveLink;
+            var properties = { type: 'application/zip' };
+            var filename = "yatt.zip";
+
+            var file = new Blob([blob], properties);
+
+            var fileURL = URL.createObjectURL(file);
+
+            saveLink.href = fileURL;
+            saveLink.download = filename;
+
+            click(saveLink);
+
+        });
+
+
+}
 
 $('#uploadArchive').on('click', (e) => {
-	let fileUtil = new FileUtil(document);
+    let fileUtil = new FileUtil(document);
 
-	fileUtil.load((files) => {
-		$(this).Setup();
-	});
+    fileUtil.load((files) => {
+        $(this).Setup();
+    });
 
 });
 
 $('#uploadVideo').on('click', (e) => {
-	let fileUtil = new FileUtil(document);
+    let fileUtil = new FileUtil(document);
 
-	fileUtil.load((files) => {
+    fileUtil.load((files) => {
 
-		$(this).Setup();
+        $(this).Setup();
 
-		processFiles(files);
-	});
+        processFiles(files);
+    });
+
+});
+
+$('#saveArchive').on('click', (e) => {
+
+    $(this).Save(filename, images, blob);
 
 });
 
 $('#photobtn').on('click', (e) => {
 
-	setTimeout(() => { 
-		$('#camera').attr('src','assets/images/camera-click.svg');
-		
-		$('#photobtn').css("color", "white");
-		$('#photobtn').css("background-color", "black");
+    setTimeout(() => {
+        $('#camera').attr('src', 'assets/images/camera-click.svg');
 
-		videoPlayer.muted(true);
-		$('#camera-click').get(0).play();
-		var currentTime = videoPlayer.currentTime();
-		var videoUtil = new VideoUtil($('#vid1 > video').get(0));
-	
-		if (!(String(currentTime) in images)) {
+        $('#photobtn').css("color", "white");
+        $('#photobtn').css("background-color", "black");
 
-			images[String(currentTime)] = videoUtil.captureVideoFrame('jpeg');
+        videoPlayer.muted(true);
+        $('#camera-click').get(0).play();
+        var currentTime = videoPlayer.currentTime();
+        var videoUtil = new VideoUtil($('#vid1 > video').get(0));
 
-			setTimeout(() => { 
-				videoPlayer.muted(false);
+        if (!(String(currentTime) in images)) {
 
-				$('#camera').attr('src','assets/images/camera.svg');
+            images[String(currentTime)] = videoUtil.captureVideoFrame('jpeg');
 
-				var entry = addSwiperEntry(String(currentTime));
-						
-				$('#photobtn').css("color", "black");
-				$('#photobtn').css("background-color", "white");
+            setTimeout(() => {
+                videoPlayer.muted(false);
 
-				$('#image-container')[0].scrollLeft = entry.addEnd ? $('#image-container')[0].scrollLeft + 400 :
-													  entry.card * 400;
+                $('#camera').attr('src', 'assets/images/camera.svg');
 
-			}, 600);
+                var entry = addSwiperEntry(String(currentTime));
 
-		} else {
-			var keys = Object.keys(images);
-		}
+                $('#photobtn').css("color", "black");
+                $('#photobtn').css("background-color", "white");
 
-	}, 1);	
+                $('#image-container')[0].scrollLeft = entry.addEnd ? $('#image-container')[0].scrollLeft + 400 :
+                    entry.card * 400;
+
+            }, 600);
+
+        } else {
+            var keys = Object.keys(images);
+        }
+
+    }, 1);
 
 });
 
@@ -213,15 +264,15 @@ $('#photobtn').on('click', (e) => {
  * @param {String} time The current Time
  */
 function addSwiperEntry(time) {
-	var entry = generateSwiperEntry(time);
+    var entry = generateSwiperEntry(time);
 
-	if (entry.addEnd) {
-		$('#image-container')[0].appendChild(entry.node)
-	} else {
-		$('#image-container')[0].insertBefore(entry.node, entry.position);
-	}
+    if (entry.addEnd) {
+        $('#image-container')[0].appendChild(entry.node)
+    } else {
+        $('#image-container')[0].insertBefore(entry.node, entry.position);
+    }
 
-	return entry;
+    return entry;
 
 }
 
@@ -230,43 +281,43 @@ function addSwiperEntry(time) {
  * 
  * @param {*} time The time index
  */
- function generateSwiperEntry(time) {
-	var cards = $('#image-container > .card');
-	var addEnd = true;
-	var card = 0;
-	var output = cardTemplate({
-		images: images,
-		time: time
-	});
+function generateSwiperEntry(time) {
+    var cards = $('#image-container > .card');
+    var addEnd = true;
+    var card = 0;
+    var output = cardTemplate({
+        images: images,
+        time: time
+    });
 
-	console.log(cards.length);
+    console.log(cards.length);
 
-	for (; card < cards.length; card++) {
-		var imageTime = parseFloat(cards[card].id.replace("card-", ""));
+    for (; card < cards.length; card++) {
+        var imageTime = parseFloat(cards[card].id.replace("card-", ""));
 
-		if (imageTime > parseFloat(time)) {
-			addEnd = false;
-			break;
-		}
+        if (imageTime > parseFloat(time)) {
+            addEnd = false;
+            break;
+        }
 
-	}
+    }
 
-	var node = new DOMParser().parseFromString(output, 'text/html').body.childNodes[0];
-		
-	return {
-		node : node,
-		position : cards[card],
-		card : card,
-		addEnd : addEnd
-	};
+    var node = new DOMParser().parseFromString(output, 'text/html').body.childNodes[0];
+
+    return {
+        node: node,
+        position: cards[card],
+        card: card,
+        addEnd: addEnd
+    };
 
 }
 
 /**
  * Window Load code
  */
- $(() => {
+$(() => {
 
-	$('#photobtn').attr('disabled', true);
+    $('#photobtn').attr('disabled', true);
 
 });
