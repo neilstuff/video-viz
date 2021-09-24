@@ -1,46 +1,33 @@
 extends layout
 
 block content
-  script(type="text/template" data-template="menu-template").
-    block content
-    each folder, index in folders
-      - var click = '$(this).Select("' + escape(folder) + '","' + index + '")'
-      - var menuID = 'menu-' + index
-      - var hrefID = '#hrefID-' + index
-      a(id=`${menuID}` href=`${hrefID}`, onclick=`${click}`)= folder
-
-  script(type="text/template" data-template="tab-template").
-    block content
-      each folder, index in folders
-        - var click = 'return $(this).Tab("' + escape(folder) + '","' + index + '")'
-        - var tabID = 'tab-' + index
-        - var tabButtonID = 'tab-button-' + index
-        li  
-          if index == selectedTab
-            div(id=`${tabButtonID}` class="tab-item" style="background: rgba(255, 255, 255, 0.4) ; text-decoration: underline;", onclick=`${click}`)
-              a(id=`${tabID}` class="tab-item-button" href=`${tabID}`)= folder
-          if index != selectedTab
-            div(id=`${tabButtonID}` class="tab-item", style="text-decoration: none;", onclick=`${click}`)
-              a(id=`${tabID}` class="tab-item-button" href=`${tabID}`)= folder 
-
+  script(type="text/template" data-template="card-template").
+    <div class="card" id="card-<%=time%>" onclick="$(this).Play(<%=time%>);">
+        <img id="img-<%=time%>" src="<%=images[time].dataUri%>" style="width:250px; height:160px"/>
+        <div style="position:absolute; bottom:20px; left:110px;" class="play"> 
+          <img src="assets/images/play.svg" style="width:48px; height:48px;"/>
+        </div>
+        <label style="font-size:8px; position:absolute; bottom:-50px; left:0px; width:250px; color:white; text-overflow: ellipsis;background-color:rgba(0, 0, 0, 0.1);">
+          &nbsp;<%=time%>
+        </label>
+    </div>
+    
   div.main(style="position: absolute; top:0px; bottom:0px; left:0px; right:0px; background-color: black; overflow: hidden;")
+    audio#camera-click(src="assets/sounds/camera-click.mp3" type="audio/mpeg")
+    img(src="assets/images/film-reel.svg" style="position:absolute; left:8px; top:2px; width:54px; height:54px;" alt="Electron Viz")
+    h1(style="position:absolute; left:80px; top:10px; color:#ffffff") Video Viz
     div#toolbar
-      div.layout    
-        div#scroll-left(style="position: absolute; left:10px; display:none;" class="scroller")
-          img(src='assets/images/arrow-left.svg' style='margin-top:5px; width:16px; height:16px') 
-        div#scroll-right(style="position: absolute; right:90px; display:none;" class="scroller")
-          img(src='assets/images/arrow-right.svg' style='margin-top:5px; width:16px; height:16px') 
-
-        div.container
-          div.wrapper
-            ul#tab(class="nav nav-tabs list")
-          
+      div.layout        
         div(style="position: absolute; right:5px; top:-15px; padding-left:5px;")
-          button.button#addDirectory
-            img(src="assets/images/plus.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Add Directory")
+          button.button#uploadArchive
+            img(src="assets/images/archive.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Upload Archive")
+          button.button#uploadVideo
+            img(src="assets/images/film.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Upload Video")
+          button.button#saveArchive
+             img(src="assets/images/archive-save.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Save Archive")
           button.button#menu
             img(src="assets/images/menu.svg" style="padding-top:8px; width:12px; height:12px; top:10px; text-align:center; margin-left:1px;" alt="Menu")
-      div#dropdown.dropdown-content
+      div#shotdown.shotdown-content
 
   div(style="position: absolute; overflow: none; top:8px; bottom: 20px; left: 10px; right: 10px; margin-top:50px; background-color:rgba(255, 255, 255, 0.08); padding-top:10px; overflow: hidden;")
     div#display(style='overflow:none; position:absolute; left:0px; right:0px; bottom: 220px; top: 0px; border:2px solid white; background: url("assets/images/video-player.png") no-repeat center center;')
@@ -48,22 +35,19 @@ block content
         video#vid1(class="video-js vjs-default-skin vjs-big-play-centered" style='position:absolute; width:100%; height:100%; margin-left: auto; margin-right: auto;')
     div(style="position:absolute; bottom:0px;")
       div(style="left:10px; width:100px;")
-        div#droparea(style="left:10px; width:200px; height:200px")
-          div#dropareainner
+        div#shotarea(style="left:10px; width:200px; height:200px")
+          div#shotareainner
             p
             p
             picture
-            img(src='assets/images/download.svg' style='margin-top:20px; width:64px; height:64px') 
+            img#camera(src='assets/images/camera.svg' style='margin-top:20px; width:64px; height:64px') 
             p
-            p.dropfiletext Drop Video File here
-            p.dropfiletext or
+            p.shotfiletext Click To Take Photo
             p
-              input.uploadbtn#uploadbtn(type='button' value="Select File")  
-          input#upload(type='file' accept='video/*')
-    div#navigator(style='position:absolute; left:220px; bottom:0px; height:190px; right:0px; border:2px solid white; padding:5px; background-color:rgba(255, 255, 255, 0.3);')
-      div.swiper-container#swiper-container(style='right:0px; padding-bottom:40px;')
-        div.swiper-wrapper#swiper-wrapper(style='height:160px; width:160px;')
-        div.swiper-pagination(style="margin-top:0px;")
+            input.photobtn#photobtn(type='button' value="Take Photo" disabled)  
+    div#navigator(style="position:absolute; left:220px; bottom:0px; height:190px; right:0px; border:2px solid white; padding:5px; background-color:rgba(255, 255, 255, 0.3);")
+      div.image-container#image-container(style="position:absolute; left:5px; right:5px; top:5px; bottom:0px; margin-bottom:3px;")
+
   div#waitDialog(class="modal-blocker" style="display:none; z-index:100; position:fixed; width:100%; height:100%; padding:0px;")
     div#uploadIndicator(style="position: relative; top:35%; height:90px; width:90px; margin:auto; z-index: 1000;")
       div#uploadProgress(class="c100 p0 big grey")
@@ -73,8 +57,11 @@ block content
             div.fill      
     div#messageStatus(style="position: relative; color:white; z-index: 1000; top: 50%; text-align: center;")
       label#messageLabel Processing 
-
-  include assets/views/connect.pug
   
-  script(src='node_modules/video.js/dist/video.min.js')
+  script(src="node_modules/ejs/ejs.min.js")
+  script(src="node_modules/jquery/dist/jquery.min.js")
+  script(src="node_modules/video.js/dist/video.min.js")
+  script(src="node_modules/jszip/dist/jszip.min.js")
+  script(src="assets/javascripts/utils/fileutil.js")
+  script(src="assets/javascripts/utils/videoutil.js")
   script(src="assets/javascripts/responder.js")
