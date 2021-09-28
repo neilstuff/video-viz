@@ -73,31 +73,6 @@ function processFiles(files) {
 }
 
 /**
- * Build the Swiper List
- * 
- * @param {string} directory the directory
- * @param {string} folder the folder containing the files
- */
-function buildSwiperList(directory, folder) {
-    var folderPath = path.join(directory, folder)
-    const files = fileFilter(folderPath);
-
-    $('#view').css('display', 'none');
-    $('#swiper-wrapper').html("");
-    $('#swiper-container').css('display', 'block');
-
-    for (var file in files) {
-
-        createSwiperEntry(folderPath, files[file], file, files.length);
-
-    }
-
-    $('#swiper-container').css('display', 'block');
-
-}
-
-
-/**
  * Show the Video Player
  * 
  * @param {string} fileUrl 
@@ -152,13 +127,87 @@ $.fn.Play = (currentTime) => {
     videoPlayer.currentTime(parseInt(currentTime));
 }
 
+$.fn.Load = (images) => {
+     return new Promise(accept => {
+    
+        window.setTimeout(() => {
 
-$.fn.Save = async (filename, images, video) => {
+            function getBlob(file) {
+
+                return new Promise(resolve => {
+                    file.async("blob").then(function (blob) {
+                        resolve(blob);
+                    });
+
+                });
+
+            }
+            
+            var loadButton = document.createElementNS("http://www.w3.org/1999/xhtml", "input");
+
+            loadButton.setAttribute("type", "file");
+            loadButton.accept = '.zip';
+
+            loadButton.onchange = function (event) {
+                var files = event.target.files;
+
+                for (var iFile = 0; iFile < files.length; ++iFile) {
+
+                    var reader = new FileReader();
+
+                    reader.onload = function () {
+                        var images = {};
+                        var tags = {};
+                        var names = {};
+                         var zip = new JSZip();
+
+                        zip.loadAsync(reader.result).then(async function (zip) {
+                            var files = zip.file(/.*/);
+
+                            for (var iFile = 0; iFile < files.length; iFile++) {
+                                var file = files[iFile];
+                                var blob = await getBlob(file);
+
+                                images[file.name]= {
+                                    blob : blob,
+                                    dataUri : URL.createObjectURL(blob),
+                                    format  : file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 2)
+                                };
+                                   
+                            }
+
+                            accept(images);
+
+                        });
+
+                    }
+
+                    reader.readAsArrayBuffer(files[iFile]);
+
+                }
+
+            };
+
+            document.body.onfocus = function () {
+
+                document.getElementById("waitDialog").style.display = "none";
+                document.body.onfocus = null;
+
+            }
+
+            loadButton.click();
+
+        }, 100);
+    });
+
+}
+
+$.fn.Save = async (filename, images) => {
     let zipFile = new JSZip();
     let folder = zipFile.folder('');
 
     for (image in images) {
-        zipFile.file(`${image.padStart(20, '0')}.jpeg`, images[image].blob);
+        zipFile.file(`${image.padStart(20, '0')}.${images[image].format}`, images[image].blob);
     }
 
 
@@ -190,15 +239,6 @@ $.fn.Save = async (filename, images, video) => {
 
 }
 
-$('#uploadArchive').on('click', (e) => {
-    let fileUtil = new FileUtil(document);
-
-    fileUtil.load((files) => {
-        $(this).Setup();
-    });
-
-});
-
 $('#uploadVideo').on('click', (e) => {
     let fileUtil = new FileUtil(document);
 
@@ -207,13 +247,25 @@ $('#uploadVideo').on('click', (e) => {
         $(this).Setup();
 
         processFiles(files);
+
     });
+
+});
+
+$('#loadArchive').on('click', async(e) => {
+
+    images = await $(this).Load(images);
+
+    for (image in images) {
+        console.log(images[image]);
+        addSwiperEntry(image);
+    }
 
 });
 
 $('#saveArchive').on('click', (e) => {
 
-    $(this).Save(filename, images, video);
+    $(this).Save(filename, images);
 
 });
 
@@ -229,17 +281,18 @@ $('#photobtn').on('click', (e) => {
         $('#camera-click').get(0).play();
         var currentTime = videoPlayer.currentTime();
         var videoUtil = new VideoUtil($('#vid1 > video').get(0));
+        var time = String(currentTime).padStart(20, '0');
 
-        if (!(String(currentTime) in images)) {
+        if (!(time in images)) {
 
-            images[String(currentTime)] = videoUtil.captureVideoFrame('jpeg');
-
+            images[time] = videoUtil.captureVideoFrame('jpeg');
+    
             setTimeout(() => {
                 videoPlayer.muted(false);
 
                 $('#camera').attr('src', 'assets/images/camera.svg');
 
-                var entry = addSwiperEntry(String(currentTime));
+                var entry = addSwiperEntry(time);
 
                 $('#photobtn').css("color", "black");
                 $('#photobtn').css("background-color", "white");
