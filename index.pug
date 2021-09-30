@@ -2,11 +2,12 @@ extends layout
 
 block content
   script(type="text/template" data-template="card-template").
-    <div class="card" id="card-<%=time%>" onclick="$(this).Play(<%=time%>);">
+    <div class="card" id="card-<%=time%>" onclick="$(this).Play('<%=time%>');">
         <img id="img-<%=time%>" src="<%=images[time].dataUri%>" style="width:250px; height:160px"/>
-        <div style="position:absolute; bottom:20px; left:110px;" class="play"> 
-          <img src="assets/images/play.svg" style="width:48px; height:48px;"/>
-        </div>
+          <div class="card-close" style="position:absolute; top:0px; right:-15px; width:24px; height:24px;" onclick="$(this).Remove('<%=time%>');">&#10006</div>"
+          <div style="position:absolute; bottom:20px; left:110px;" class="play"> 
+            <img src="assets/images/play.svg" style="width:48px; height:48px;"/>
+          </div>
         <label style="font-size:8px; position:absolute; bottom:-50px; left:0px; width:250px; color:white; text-overflow: ellipsis;background-color:rgba(0, 0, 0, 0.1);">
           &nbsp;<%=time%>
         </label>
@@ -29,7 +30,8 @@ block content
              img(src="assets/images/archive-save.svg" style="padding-top:8px; width:12px; height:12px; top:6px; text-align:center; margin-left:1px;" alt="Save Archive")
           button.button#menu
             img(src="assets/images/menu.svg" style="padding-top:8px; width:12px; height:12px; top:10px; text-align:center; margin-left:1px;" alt="Menu")
-      div#shotdown.shotdown-content
+      div#dropdown.dropdown-content
+        a#clear(href="") Clear Images
 
   div(style="position: absolute; overflow: none; top:8px; bottom: 20px; left: 10px; right: 10px; margin-top:50px; background-color:rgba(255, 255, 255, 0.08); padding-top:10px; overflow: hidden;")
     div#display(style='overflow:none; position:absolute; left:0px; right:0px; bottom: 220px; top: 0px; border:2px solid white; background: url("assets/images/video-player.png") no-repeat center center;')

@@ -127,6 +127,14 @@ $.fn.Play = (currentTime) => {
     videoPlayer.currentTime(parseInt(currentTime));
 }
 
+$.fn.Remove = (currentTime) => {
+    var node = document.getElementById(`card-${currentTime}`);
+
+    node.parentNode.removeChild(node);
+    
+    return false;
+}
+
 $.fn.Load = (images) => {
      return new Promise(accept => {
     
@@ -168,7 +176,7 @@ $.fn.Load = (images) => {
                                 var file = files[iFile];
                                 var blob = await getBlob(file);
 
-                                images[file.name]= {
+                                images[file.name.slice(0, file.name.lastIndexOf("."))]= {
                                     blob : blob,
                                     dataUri : URL.createObjectURL(blob),
                                     format  : file.name.slice((file.name.lastIndexOf(".") - 1 >>> 0) + 2)
@@ -257,9 +265,10 @@ $('#loadArchive').on('click', async(e) => {
     images = await $(this).Load(images);
 
     for (image in images) {
-        console.log(images[image]);
         addSwiperEntry(image);
     }
+
+    return false;
 
 });
 
@@ -267,6 +276,35 @@ $('#saveArchive').on('click', (e) => {
 
     $(this).Save(filename, images);
 
+    return false;
+
+});
+
+$('#menu').on('click', (e) => {
+
+    if (!document.getElementById("dropdown").classList.contains('show')) {
+        document.getElementById("dropdown").classList.toggle("show");
+    } 
+
+    if (document.getElementById("dropdown").classList.contains('hide')) {
+        document.getElementById("dropdown").classList.toggle("hide");
+    }
+  
+    return false;
+ 
+});
+
+$('#clear').on('click', (e) => {
+
+    images = {};
+
+    $('#image-container').html("");
+
+    document.getElementById("dropdown").classList.remove('show');
+    document.getElementById("dropdown").classList.toggle("hide");
+
+    return false;
+ 
 });
 
 $('#photobtn').on('click', (e) => {
@@ -369,5 +407,17 @@ function generateSwiperEntry(time) {
 $(() => {
 
     $('#photobtn').attr('disabled', true);
+    
+    window.onclick = event => {
+  
+        if (document.getElementById("dropdown").classList.contains('show')) {
+            document.getElementById("dropdown").classList.remove('show');
+            document.getElementById("dropdown").classList.toggle("hide");
+        } else if (!document.getElementById("dropdown").classList.contains('hide')) {
+            document.getElementById("dropdown").classList.toggle("hide");
+            document.getElementById("dropdown").classList.toggle("show");
+        }
+
+    }
 
 });

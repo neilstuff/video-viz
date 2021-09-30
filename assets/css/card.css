@@ -18,3 +18,15 @@
     color: rgba(0, 0, 0, 1.0);
     padding: 5px;
 }
+
+.card-close {
+    color:#aaa;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.card-close:hover {
+    color:white;
+    cursor: pointer;
+}
